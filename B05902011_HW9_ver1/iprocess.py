@@ -13,18 +13,13 @@ def Robo(im, threshold):
     img = np.concatenate((img, row), axis = 0)
     img = np.concatenate((img, col), axis = 1)
     img = np.concatenate((col, img), axis = 1)
-
-    print(img)
     
     f1 = lambda x : (img[x[0] + 1, x[1] + 1] - img[x])**2
     f2 = lambda x : (img[x[0] + 1, x[1] - 1] - img[x])**2 
     f = lambda x : math.sqrt(f1(x) + f2( (x[0], x[1]+1) ))
     for i in range(X):
         for j in range(Y):
-            if(f((i+1,j+1)) >= threshold):
-                img[i+1, j+1] = 0
-            else:
-                img[i+1, j+1] = 255
+            img[i+1, j+1] = 255 * (f((i+1, j+1)) < threshold )
     return img[1:X+1, 1:Y+1]
 
 def main(argv):
