@@ -16,32 +16,34 @@ def expand(im_raw, size):
 
 def Robo(im_raw, threshold):
     X,Y = np.shape(im_raw)
-    img = expand(im_raw, 1)
-    f1 = lambda x : (img[x[0] + 1, x[1] + 1] - img[x])**2
-    f2 = lambda x : (img[x[0] + 1, x[1] - 1] - img[x])**2 
+    new_img = expand(im_raw, 1)
+    f1 = lambda x : (new_img[x[0] + 1, x[1] + 1] - new_img[x])**2
+    f2 = lambda x : (new_img[x[0] + 1, x[1] - 1] - new_img[x])**2 
     f = lambda x : math.sqrt(f1(x) + f2((x[0], x[1]+1)))
     for i in range(X):
         for j in range(Y):
-            img[i+1, j+1] = 255 * (f((i+1, j+1)) < threshold )
-    return img[1:X+1, 1:Y+1]
+            new_img[i+1, j+1] = 255 * (f((i+1, j+1)) < threshold )
+    return new_img[1:X+1, 1:Y+1]
 
 def Prew(im_raw, threshold):
     X,Y = np.shape(im_raw)
-    img = expand(im_raw, 1)
-    f1 = lambda x : (sum(img[x[0] + 1, x[1] - 1 : x[1] + 2]) 
-                    - sum(img[x[0] - 1, x[1] - 1 : x[1] + 2]))**2
-    f2 = lambda x : (sum(img[x[0] - 1 : x[0] + 2, x[1] + 1])
-                    - sum(img[x[0] - 1 : x[0] + 2, x[1] - 1]))**2
+    new_img = expand(im_raw, 1)
+    f1 = lambda x : (sum(new_img[x[0] + 1, x[1] - 1 : x[1] + 2]) 
+                    - sum(new_img[x[0] - 1, x[1] - 1 : x[1] + 2]))**2
+    f2 = lambda x : (sum(new_img[x[0] - 1 : x[0] + 2, x[1] + 1])
+                    - sum(new_img[x[0] - 1 : x[0] + 2, x[1] - 1]))**2
     f = lambda x : math.sqrt(f1(x) + f2(x))
     for i in range(X):
         for j in range(Y):
-            img[i + 1, j + 1] = 255 * (f((i + 1, j + 1)) < threshold)
-    return img[1:X+1, 1:Y+1]
+            new_img[i + 1, j + 1] = 255 * (f((i + 1, j + 1)) < threshold)
+    return new_img[1:X+1, 1:Y+1]
 
 def main(argv):
     img = np.array(Image.open(argv[1]))
 
     Image.fromarray(Robo(img, 12).astype("uint8"), mode = "L").save("Robo.png")
+    print(np.shape(img))
+    Image.fromarray(img, mode = "L").save("test.png")
     Image.fromarray(Prew(img, 255).astype("uint8"), mode = "L").save("Prew.png")
 
 if __name__ == '__main__':
