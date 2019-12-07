@@ -42,7 +42,7 @@ def main(argv):
     img = np.array(Image.open(argv[1]))
 
     Image.fromarray(Robo(img, 12).astype("uint8"), mode = "L").save("Robo.png")
-    Image.fromarray(Prew(img, 12).astype("uint8"), mode = "L").save("Prew.png")
+    Image.fromarray(Prew(img, 40).astype("uint8"), mode = "L").save("Prew.png")
 
 if __name__ == '__main__':
     if(len(sys.argv) == 2):
