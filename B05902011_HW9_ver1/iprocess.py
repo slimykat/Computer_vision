@@ -14,9 +14,8 @@ def expand(im_raw, size):
     im = np.concatenate((im, col), axis = 1)
     return im
 
-def Robo(im_raw, threshold):
+def Robo(im_raw, threshold, copy_img):
     X,Y = np.shape(im_raw)
-    copy_img = expand(im_raw, 1)
     new_img = copy_img.copy()
     f1 = lambda x : (copy_img[x[0] + 1, x[1] + 1] - copy_img[x])**2
     f2 = lambda x : (copy_img[x[0] + 1, x[1] - 1] - copy_img[x])**2 
@@ -26,9 +25,8 @@ def Robo(im_raw, threshold):
             new_img[i+1, j+1] = 255 * (f((i+1, j+1)) < threshold )
     return new_img[1:X+1, 1:Y+1]
 
-def Prew(im_raw, threshold):
+def Prew(im_raw, threshold, copy_img):
     X,Y = np.shape(im_raw)
-    copy_img = expand(im_raw, 1)
     new_img = copy_img.copy()
     f1 = lambda x : (sum(copy_img[x[0] + 1, x[1] - 1 : x[1] + 2]) 
                     - sum(copy_img[x[0] - 1, x[1] - 1 : x[1] + 2]))**2
@@ -40,12 +38,25 @@ def Prew(im_raw, threshold):
             new_img[i + 1, j + 1] = 255 * (f((i + 1, j + 1)) < threshold)
     return new_img[1:X+1, 1:Y+1]
 
+def Sobe(im_raw, threshold, copy_img):
+    X,Y = np.shape(im_raw)
+    new_img = copy_img.copy()
+    f1 = lambda x : ((copy_img[x[0]+1, x[1]-1] + 2 * copy_img[x[0]+1, x[1]] + copy_img[x[0]+1, x[1]+1])
+                - (copy_img[x[0]-1, x[1]-1] + 2 * copy_img[x[0]-1, x[1]] + copy_img[x[0]-1, x[1]+1] ))
+    f2 = lambda x : ((copy_img[x[0]-1, x[1]+1] + 2 * copy_img[x[0], x[1]+1] + copy_img[x[0]+1, x[1]+1]) 
+                - (copy_img[x[0]-1, x[1]-1] + 2 * copy_img[x[0], x[1]-1] + copy_img[x[0]+1, x[1]-1] ))
+    f = lambda x : math.sqrt(f1(x)**2 + f2(x)**2)
+    for i in range(X):
+        for j in range(Y):
+            new_img[i + 1, j + 1] = 255 * (f((i+1, j+1)) < threshold)
+    return new_img[1:X+1, 1:Y+1]
+
 def main(argv):
     img = np.array(Image.open(argv[1]))
-
-    Image.fromarray(Robo(img, 12).astype("uint8"), mode = "L").save("Robo.png")
-    Image.fromarray(Prew(img, 24).astype("uint8"), mode = "L").save("Prew.png")
-
+    copy_img = expand(img, 1)
+    Image.fromarray(Robo(img, 12, copy_img).astype("uint8"), mode = "L").save("Robo.png")
+    Image.fromarray(Prew(img, 30, copy_img).astype("uint8"), mode = "L").save("Prew.png")
+    Image.fromarray(Sobe(img, 38, copy_img).astype("uint8"), mode = "L").save("Sobe.png")
 if __name__ == '__main__':
     if(len(sys.argv) == 2):
         main(sys.argv)
