@@ -6,8 +6,8 @@ import math
 def expand(im_raw, size):
     X,Y = np.shape(im_raw)
     im = im_raw.copy().astype("int")
-    row = np.zeros((size, Y), dtype("int"))
-    col = np.zeros((X+2, size), dtype("int"))
+    row = np.zeros((size, Y), dtype = "int")
+    col = np.zeros((X+2, size), dtype = "int")
     im = np.concatenate((row, im), axis = 0)
     im = np.concatenate((im, row), axis = 0)
     im = np.concatenate((col, im), axis = 1)
