@@ -30,7 +30,7 @@ def Prew(im_raw, threshold):
     X,Y = np.shape(im_raw)
     copy_img = expand(im_raw, 1)
     new_img = copy_img.copy()
-    f1 = lambda x : (sum(copy_raw[x[0] + 1, x[1] - 1 : x[1] + 2]) 
+    f1 = lambda x : (sum(copy_img[x[0] + 1, x[1] - 1 : x[1] + 2]) 
                     - sum(copy_img[x[0] - 1, x[1] - 1 : x[1] + 2]))**2
     f2 = lambda x : (sum(copy_img[x[0] - 1 : x[0] + 2, x[1] + 1])
                     - sum(copy_img[x[0] - 1 : x[0] + 2, x[1] - 1]))**2

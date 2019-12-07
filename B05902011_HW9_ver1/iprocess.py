@@ -37,11 +37,6 @@ def Prew(im_raw, threshold):
     f = lambda x : math.sqrt(f1(x) + f2(x))
     for i in range(X):
         for j in range(Y):
-            if(i == 1 and j == 1):
-                print(f1((i,j)))
-                print(f2((i,j)))
-                print(f((i,j)))
-                print(copy_img[i-1 : i+2, j-1 : j+2])
             new_img[i + 1, j + 1] = 255 * (f((i + 1, j + 1)) < threshold)
     return new_img[1:X+1, 1:Y+1]
 
@@ -49,7 +44,7 @@ def main(argv):
     img = np.array(Image.open(argv[1]))
 
     Image.fromarray(Robo(img, 12).astype("uint8"), mode = "L").save("Robo.png")
-    Image.fromarray(Prew(img, 30).astype("uint8"), mode = "L").save("Prew.png")
+    Image.fromarray(Prew(img, 24).astype("uint8"), mode = "L").save("Prew.png")
 
 if __name__ == '__main__':
     if(len(sys.argv) == 2):
