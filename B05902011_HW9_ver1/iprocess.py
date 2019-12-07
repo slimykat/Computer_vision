@@ -54,7 +54,7 @@ def Sobe(im_raw, threshold, copy_img):
 def main(argv):
     img = np.array(Image.open(argv[1]))
     copy_img = expand(img, 1)
-    Image.fromarray(Robo(img, 12, copy_img).astype("uint8"), mode = "L").save("Robo.png")
+    Image.fromarray(Robo(img, 30, copy_img).astype("uint8"), mode = "L").save("Robo.png")
     Image.fromarray(Prew(img, 30, copy_img).astype("uint8"), mode = "L").save("Prew.png")
     Image.fromarray(Sobe(img, 38, copy_img).astype("uint8"), mode = "L").save("Sobe.png")
 if __name__ == '__main__':
