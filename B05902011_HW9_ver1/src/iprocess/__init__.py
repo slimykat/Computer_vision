@@ -379,4 +379,122 @@ def SNR(origin_img, noice_img):
     muN = np.sum(delta, axis=None) / dim
     VN = np.sum(np.square(delta - muN), axis=None) / dim
     return 20*log(sqrt(VS / VN), 10)
+
+def expand(im_raw, size):
+    X,Y = np.shape(im_raw)
+    im = im_raw.copy().astype("int")
+    row = np.zeros((size, Y), dtype = "int")
+    col = np.zeros((X+2*size, size), dtype = "int")
+    im = np.concatenate((row, im), axis = 0)
+    im = np.concatenate((im, row), axis = 0)
+    im = np.concatenate((col, im), axis = 1)
+    im = np.concatenate((im, col), axis = 1)
+    return im
+
+def Robo(im_raw, threshold, copy_img):
+    X,Y = np.shape(im_raw)
+    new_img = copy_img.copy()
+    f1 = lambda x : (copy_img[x[0] + 1, x[1] + 1] - copy_img[x])**2
+    f2 = lambda x : (copy_img[x[0] + 1, x[1] - 1] - copy_img[x])**2 
+    f = lambda x : sqrt(f1(x) + f2((x[0], x[1]+1)))
+    for i in range(X):
+        for j in range(Y):
+            new_img[i+1, j+1] = 255 * (f((i+1, j+1)) < threshold )
+    return new_img[1:X+1, 1:Y+1]
+
+def Prew(im_raw, threshold, copy_img):
+    X,Y = np.shape(im_raw)
+    new_img = copy_img.copy()
+    f1 = lambda x : (sum(copy_img[x[0] + 1, x[1] - 1 : x[1] + 2]) 
+                    - sum(copy_img[x[0] - 1, x[1] - 1 : x[1] + 2]))**2
+    f2 = lambda x : (sum(copy_img[x[0] - 1 : x[0] + 2, x[1] + 1])
+                    - sum(copy_img[x[0] - 1 : x[0] + 2, x[1] - 1]))**2
+    f = lambda x : sqrt(f1(x) + f2(x))
+    for i in range(X):
+        for j in range(Y):
+            new_img[i + 1, j + 1] = 255 * (f((i + 1, j + 1)) < threshold)
+    return new_img[1:X+1, 1:Y+1]
+
+def Sobe(im_raw, threshold, copy_img):
+    X,Y = np.shape(im_raw)
+    new_img = copy_img.copy()
+    f1 = lambda x : ((copy_img[x[0]+1, x[1]-1] + 2 * copy_img[x[0]+1, x[1]] + copy_img[x[0]+1, x[1]+1])
+                - (copy_img[x[0]-1, x[1]-1] + 2 * copy_img[x[0]-1, x[1]] + copy_img[x[0]-1, x[1]+1] ))
+    f2 = lambda x : ((copy_img[x[0]-1, x[1]+1] + 2 * copy_img[x[0], x[1]+1] + copy_img[x[0]+1, x[1]+1]) 
+                - (copy_img[x[0]-1, x[1]-1] + 2 * copy_img[x[0], x[1]-1] + copy_img[x[0]+1, x[1]-1] ))
+    f = lambda x : sqrt(f1(x)**2 + f2(x)**2)
+    for i in range(X):
+        for j in range(Y):
+            new_img[i + 1, j + 1] = 255 * (f((i+1, j+1)) < threshold)
+    return new_img[1:X+1, 1:Y+1]
+
+def Frei(im_raw, threshold, copy_img):
+    X,Y = np.shape(im_raw)
+    new_img = copy_img.copy()
+    sq2 = sqrt(2)
+    f1 = lambda x : ((copy_img[x[0]+1, x[1]-1] + sq2 * copy_img[x[0]+1, x[1]] + copy_img[x[0]+1, x[1]+1])
+                - (copy_img[x[0]-1, x[1]-1] + sq2 * copy_img[x[0]-1, x[1]] + copy_img[x[0]-1, x[1]+1] ))
+    f2 = lambda x : ((copy_img[x[0]-1, x[1]+1] + sq2 * copy_img[x[0], x[1]+1] + copy_img[x[0]+1, x[1]+1]) 
+                - (copy_img[x[0]-1, x[1]-1] + sq2 * copy_img[x[0], x[1]-1] + copy_img[x[0]+1, x[1]-1] ))
+    f = lambda x : sqrt(f1(x)**2 + f2(x)**2)
+    for i in range(X):
+        for j in range(Y):
+            new_img[i + 1, j + 1] = 255 * (f((i+1, j+1)) < threshold)
+    return new_img[1:X+1, 1:Y+1] 
+            
+
+def Kirs(copy_raw, threshold):
+    size = 1
+    k0 = np.array([[-3, -3, 5],[-3, 0, 5],[-3, -3, 5]])
+    k1 = np.array([[-3, 5, 5],[-3, 0, 5],[-3, -3, -3]])
+    k2 = np.array([[5, 5, 5],[-3, 0, -3],[-3, -3, -3]])
+    k3 = np.array([[5, 5, -3],[5, 0, -3],[-3, -3, -3]])
+    k4 = np.array([[5, -3, -3],[5, 0, -3],[5, -3, -3]])
+    k5 = np.array([[-3, -3, -3],[5, 0, -3],[5, 5, -3]])
+    k6 = np.array([[-3, -3, -3],[-3, 0, -3],[5, 5, 5]])
+    k7 = np.array([[-3, -3, -3],[-3, 0, 5],[-3, 5, 5]])
+    mask_list = [k0,k1,k2,k3,k4,k5,k6,k7]
+    return max_Mask(copy_raw, size, threshold, mask_list)
+
+def Robi(copy_raw, threshold):
+    size = 1
+    k0 = np.array([[-1,0,1], [-2,0,2], [-1,0,1]])
+    k1 = np.array([[0,1,2], [-1,0,1], [-2,-1,0]])
+    k2 = np.array([[1,2,1], [0,0,0], [-1,-2,-1]])
+    k3 = np.array([[2,1,0], [1,0,-1], [0,-1,-2]])
+    k4 = np.array([[1,0,-1], [2,0,-2], [1,0,-1]])
+    k5 = np.array([[0,-1,-2], [1,0,-1], [2,1,0]])
+    k6 = np.array([[-1,-2,-1], [0,0,0], [1,2,1]])
+    k7 = np.array([[-2,-1,0], [-1,0,1], [0,1,2]])
+    mask_list = [k0,k1,k2,k3,k4,k5,k6,k7]
+    return max_Mask(copy_raw, size, threshold, mask_list)
+
+def Neva(copy_raw, threshold):
+    size = 2
+    k0 = np.array([[100,100,100,100,100],[100,100,100,100,100],[0,0,0,0,0],[-100,-100,-100,-100,-100],[-100,-100,-100,-100,-100]])
+    k1 = np.array([[100,100,100,100,100],[100,100,100,78,-32],[100,92,0,-92,-100],[32,-78,-100,-100,-100],[-100,-100,-100,-100,-100]])
+    k2 = np.array([[100,100,100,32,-100],[100,100,92,-78,-100],[100,100,0,-100,-100],[100,78,-92,-100,-100],[100,-32,-100,-100,-100]])
+    k3 = np.array([[-100,-100,0,100,100],[-100,-100,0,100,100],[-100,-100,0,100,100],[-100,-100,0,100,100],[-100,-100,0,100,100]])
+    k4 = np.array([[-100,32,100,100,100],[-100,-78,92,100,100],[-100,-100,0,100,100],[-100,-100,-92,78,100],[-100,-100,-100,-32,100]])
+    k5 = np.array([[100,100,100,100,100],[-32,78,100,100,100],[-100,-92,0,92,100],[-100,-100,-100,-78,32],[-100,-100,-100,-100,-100]])
+    mask_list = [k0,k1,k2,k3,k4,k5]
+    return max_Mask(copy_raw, size, threshold, mask_list)
+
+def max_Mask(copy_raw, size, threshold, mask_list):
+    #extended size
+    X, Y = np.shape(copy_raw)
+    new_img = copy_raw.copy()
+
+    for i in range(size, X - size):
+        for j in range(size, Y - size):
+            grad = np.NINF
+            for mask in mask_list:
+                current_grad = np.sum(np.multiply(mask, copy_raw[i-size : i+1+size, j-size : j+1+size]))
+                grad = max(grad, current_grad)
+                if(grad >= threshold):
+                    break
+            new_img[i, j] = 255 * (grad < threshold)
+
+    return new_img[size : X-size, size : Y-size]
+
     
